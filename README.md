@@ -33,46 +33,46 @@ Content of run_analysis.R is discussed below:
 library(dplyr)
 
 ## 1. Merges the training and the test sets to create one data set.
-# read additional data regarding labels and features
+read additional data regarding labels and features
 featureNames <- read.table("UCI HAR Dataset/features.txt")
 activityLabels <- read.table("UCI HAR Dataset/activity_labels.txt", header = FALSE)
 
 
-# read subject test and train data
+read subject test and train data
 subjectTest <- read.table("UCI HAR Dataset/test/subject_test.txt", header = FALSE)
 subjectTrain <- read.table("UCI HAR Dataset/train/subject_train.txt", header = FALSE)
-# joined subject values and set a proper col name
+joined subject values and set a proper col name
 subjectJoined <- rbind(subjectTrain, subjectTest)
 colnames(subjectJoined) <- "Subject"
 
-# read feature test and train data
+read feature test and train data
 xTest <- read.table("UCI HAR Dataset/test/X_test.txt", header = FALSE)
 xTrain <- read.table("UCI HAR Dataset/train/X_train.txt", header = FALSE)
-# join feature values and set a proper column name
+join feature values and set a proper column name
 xJoined <- rbind(xTrain, xTest)
 colnames(xJoined) <- featureNames[, 2] 
 
-# read activity test and train data
+read activity test and train data
 yTest <- read.table("UCI HAR Dataset/test/y_test.txt", header = FALSE)
 yTrain <- read.table("UCI HAR Dataset/train/y_train.txt", header = FALSE)
-# join activity values and set a proper column name
+join activity values and set a proper column name
 yJoined <- rbind(yTrain, yTest)
 colnames(yJoined) <- "Activity"
 
-# Join all data together.
+Join all data together.
 joinedData <- cbind(subjectJoined, yJoined, xJoined)
 
 ## 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
-# Search for all column names that contains Mean and Std in their name and subset them with two additionl colums that we got from joined subject and joined y.
+Search for all column names that contains Mean and Std in their name and subset them with two additionl colums that we got from joined subject and joined y.
 trimmedData <- joinedData[,c(1, 2, grep(".*Mean.*|.*Std.*", names(joinedData), ignore.case=TRUE))]
 
 ## 3. Uses descriptive activity names to name the activities in the data set
-# Take a proper character based description of activity from it's factor value.
+Take a proper character based description of activity from it's factor value.
 trimmedData <- mutate(trimmedData, Activity = as.character(activityLabels[Activity,2]))
 
 ## 4. Appropriately labels the data set with descriptive variable names. 
 
-# For brevity i've just changed a few names to be more descriptive but this can be done with all columns.
+For brevity i've just changed a few names to be more descriptive but this can be done with all columns.
 
 colnames(trimmedData) <- sub("^t", "Time ", ignore.case=TRUE, colnames(trimmedData))
 colnames(trimmedData) <- sub("^f", "Frequency ", ignore.case=TRUE, colnames(trimmedData))
@@ -82,5 +82,5 @@ colnames(trimmedData) <- sub("\\-y", " on y axis", ignore.case=TRUE, colnames(tr
 colnames(trimmedData) <- sub("\\-z", " on z axis", ignore.case=TRUE, colnames(trimmedData))
 
 ## 5. From the data set  creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-# we aggregate values based on each subject and each activty and store then in tidy.txt.
+we aggregate values based on each subject and each activty and store then in tidy.txt.
 write.table(aggregate(. ~Subject + Activity, trimmedData, mean), file = "tidy.txt", row.names = FALSE)
